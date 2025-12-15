@@ -1,0 +1,7 @@
+flask
+apscheduler
+requests
+pandas
+sqlalchemy
+psycopg2-binary
+pytz
