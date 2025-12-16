@@ -13,6 +13,7 @@ import sys
 # 1. CẤU HÌNH HỆ THỐNG
 # ==============================================================================
 
+# Ưu tiên lấy từ biến môi trường (cho Render), nếu không có thì dùng mặc định (cho Local/Colab)
 API_KEY = os.getenv("OPENAQ_API_KEY", "42eedf3f60d586732ed805ef7cc217bdb2c01bdaa34556e28a68093db6f08113")
 LOCATION_ID = 4946812
 
@@ -35,10 +36,9 @@ SENSOR_MAP = {
 }
 
 # ==============================================================================
-# 2. LOGIC ETL
+# 2. LOGIC ETL (AUTO-FIX DIM_DATE & FACT)
 # ==============================================================================
 def run_realtime_job():
-    # In ra ID của process để kiểm tra xem có bị chạy trùng lặp không
     print(f"\n🚀 [REAL-TIME] PID: {os.getpid()} - Bắt đầu quét...")
     
     hanoi_tz = pytz.timezone('Asia/Bangkok')
@@ -87,7 +87,7 @@ def run_realtime_job():
                             print(f"   zzz Dữ liệu cũ (DB Time: {db_max_time}). BỎ QUA.")
                             return 
         except Exception as e:
-            print(f"⚠️ Lỗi check DB: {e}")
+            print(f"⚠️ Lỗi check DB (vẫn tiếp tục): {e}")
 
         # --- BƯỚC 3: TRANSFORM ---
         print(f"   ✅ Dữ liệu MỚI! Xử lý {len(data)} chỉ số...")
@@ -108,7 +108,6 @@ def run_realtime_job():
             local_time_str = item.get('datetime', {}).get('local')
             dt_obj = pd.to_datetime(local_time_str)
             
-            # Ép kiểu int ngay tại đây cho chắc chắn
             row = {
                 'DateKey': int(dt_obj.strftime('%Y%m%d')),
                 'TimeKey': int(dt_obj.hour * 100 + dt_obj.minute),
@@ -123,30 +122,53 @@ def run_realtime_job():
         if not processed_rows: return
         df_fact = pd.DataFrame(processed_rows)
         
-        # --- BƯỚC 4: LOAD (CỰC KỲ QUAN TRỌNG: XỬ LÝ SẠCH INT) ---
+        # --- BƯỚC 4: LOAD (AUTO-FIX DIM_DATE & CLEAN INT) ---
         print(f"   💾 Đang nạp {len(df_fact)} dòng...")
         
-        # 1. Chuyển đổi Series sang List Python thuần túy
-        # set() để loại bỏ trùng lặp
-        # int(x) để ép kiểu python int
         unique_dates = sorted(list(set(int(x) for x in df_fact['DateKey'].unique())))
         unique_times = sorted(list(set(int(x) for x in df_fact['TimeKey'].unique())))
         
-        if not unique_dates or not unique_times:
-            return
+        if not unique_dates or not unique_times: return
 
-        # 2. Tạo chuỗi String thủ công. 
-        # Ví dụ: "20251215, 20251214"
-        # Đảm bảo KHÔNG dùng numpy array ở đây
+        # ---------------------------------------------------------
+        # 🔥 QUAN TRỌNG: TỰ ĐỘNG TẠO NGÀY MỚI TRONG DIM_DATE
+        # ---------------------------------------------------------
+        try:
+            with engine.begin() as conn:
+                for d_key in unique_dates:
+                    # Kiểm tra xem ngày này đã có trong Dim_Date chưa
+                    exists = conn.execute(text(f'SELECT 1 FROM "Dim_Date" WHERE "DateKey" = {d_key}')).fetchone()
+                    
+                    if not exists:
+                        print(f"   ⚠️ Phát hiện ngày mới {d_key}. Đang tạo trong Dim_Date...")
+                        
+                        # Logic tạo thông tin ngày
+                        d_str = str(d_key) # Ví dụ "20251216"
+                        year = int(d_str[:4])
+                        month = int(d_str[4:6])
+                        day = int(d_str[6:])
+                        date_val = f"{year}-{month:02d}-{day:02d}"
+                        quarter = (month - 1) // 3 + 1
+                        
+                        # Câu lệnh INSERT (Lưu ý: Đảm bảo tên cột khớp với DB của bạn)
+                        insert_dim_sql = text(f"""
+                            INSERT INTO "Dim_Date" ("DateKey", "FullDate", "Day", "Month", "Year", "Quarter") 
+                            VALUES ({d_key}, '{date_val}', {day}, {month}, {year}, {quarter})
+                        """)
+                        conn.execute(insert_dim_sql)
+                        print(f"   ✅ Đã thêm ngày {d_key} vào Dim_Date.")
+        except Exception as e_dim:
+            print(f"❌ Lỗi cập nhật Dim_Date (Kiểm tra lại tên cột): {e_dim}")
+            # Nếu lỗi tạo ngày, có thể sẽ lỗi Fact sau đó, nhưng cứ để chạy tiếp
+        
+        # ---------------------------------------------------------
+        # NẠP FACT TABLE
+        # ---------------------------------------------------------
         date_str = ", ".join(str(x) for x in unique_dates)
         time_str = ", ".join(str(x) for x in unique_times)
         
-        # DEBUG: In ra để kiểm tra xem còn chữ "np." không
-        print(f"   🛠 DEBUG SQL IN: Dates=({date_str}) | Times=({time_str})")
-
         loc_key_val = int(loc_db_map.get(LOCATION_ID))
         
-        # 3. Ráp vào câu SQL
         sql_clean = f"""
             DELETE FROM "Fact_AirQuality" 
             WHERE "LocationKey" = {loc_key_val}
@@ -166,15 +188,14 @@ def run_realtime_job():
         traceback.print_exc()
 
 # ==============================================================================
-# 3. WEB SERVER
+# 3. WEB SERVER & SCHEDULER
 # ==============================================================================
 app = Flask(__name__)
 
-# Kiểm tra nếu scheduler chưa chạy thì mới start (tránh chạy 2 lần)
-if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(func=run_realtime_job, trigger="interval", minutes=5)
-    scheduler.start()
+# Khởi tạo Scheduler (chạy ngầm mỗi 30p)
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=run_realtime_job, trigger="interval", minutes=30)
+scheduler.start()
 
 @app.route('/')
 def index(): return "🌍 Service RUNNING."
@@ -185,9 +206,10 @@ def manual():
     return "✅ Triggered update."
 
 if __name__ == "__main__":
-    # Chỉ chạy run_realtime_job ngay lập tức nếu không phải là bản reload của Flask
+    # Chạy 1 lần ngay lập tức khi khởi động
+    print("⚡ Kích hoạt lần quét đầu tiên...")
     run_realtime_job()
-        
+    
     port = int(os.environ.get("PORT", 5000))
-    # use_reloader=False để tránh Flask chạy script 2 lần
+    # use_reloader=False để tránh chạy 2 lần trên Local/Colab
     app.run(host='0.0.0.0', port=port, use_reloader=False)
