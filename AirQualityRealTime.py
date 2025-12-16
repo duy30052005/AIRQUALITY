@@ -194,7 +194,7 @@ app = Flask(__name__)
 
 # Khởi tạo Scheduler (chạy ngầm mỗi 30p)
 scheduler = BackgroundScheduler()
-scheduler.add_job(func=run_realtime_job, trigger="interval", minutes=30)
+scheduler.add_job(func=run_realtime_job, trigger="interval", minutes=5)
 scheduler.start()
 
 @app.route('/')
