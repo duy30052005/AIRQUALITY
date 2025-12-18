@@ -1,8 +1,9 @@
 flask
-apscheduler
-requests
 pandas
+numpy
 sqlalchemy
 psycopg2-binary
-pytz
-gunicorn
+requests
+apscheduler
+scikit-learn
+psutil  
