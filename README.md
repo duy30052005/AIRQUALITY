@@ -22,8 +22,38 @@ Dự án xây dựng một hệ thống hoàn chỉnh từ khâu thu thập dữ
 ) 
 
 ## 🛠 Cách triển khai (How to run)
-1. Cài đặt các thư viện cần thiết:
-   ```bash
+### Bước 1: Cài đặt môi trường
+Clone repository và cài đặt các thư viện phụ thuộc:
+```bash
 git clone [https://github.com/duy30052005/AIRQUALITY.git](https://github.com/duy30052005/AIRQUALITY.git)
 cd AIRQUALITY
 pip install -r requirements.txt
+```
+
+### Bước 2: Cấu hình biến môi trường (Environment Variables)
+Hệ thống yêu cầu thông tin kết nối Database và API Key để hoạt động. Vui lòng thiết lập các biến môi trường sau (có thể dùng file `.env`):
+* `DB_PASSWORD`: Mật khẩu kết nối database PostgreSQL (Supabase).
+* `OPENAQ_API_KEY`: API Key lấy từ hệ thống OpenAQ.
+* `PORT`: Cổng khởi chạy server (mặc định là 5000).
+
+*Lưu ý bảo mật: Tuyệt đối không commit file `.env` chứa mật khẩu thực tế lên GitHub.*
+
+### Bước 3: Khởi chạy hệ thống Server & ETL Pipeline
+Chạy file script chính để khởi động Flask server và các tiến trình thu thập dữ liệu ngầm (Background Jobs):
+```bash
+python AirQualityRealTime.py
+```
+*Hệ thống sẽ tự động thực thi luồng lấy dữ liệu không khí và thời tiết một lần ngay khi khởi động, sau đó đưa vào lịch trình chạy tự động.*
+
+### Bước 4: Truy cập Giao diện
+Sau khi server báo khởi động thành công, mở trình duyệt web và truy cập vào địa chỉ:
+👉 **http://localhost:5000**
+
+Để xem các biểu đồ dự báo chi tiết và quá trình huấn luyện mô hình, vui lòng mở các file `.ipynb` đi kèm thông qua Jupyter Notebook hoặc Google Colab.
+
+## 👥 Nhóm phát triển
+Dự án được thực hiện bởi nhóm sinh viên chuyên ngành Trí tuệ nhân tạo, Trường Đại học Công nghệ Thông tin và Truyền thông Việt - Hàn (VKU):
+* **Huỳnh Bá Duy** (23AI008)
+* **Đỗ Phú Minh Đức** (23AI011)
+* **Võ Nhật Cường** (23AI005)
+* **Trương Tấn Vũ** (23AI056)
