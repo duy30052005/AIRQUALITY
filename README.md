@@ -1,4 +1,4 @@
-# 🌍 Hanoi Air Quality Data Warehouse & Forecasting
+<img width="804" height="600" alt="image" src="https://github.com/user-attachments/assets/0015345d-711c-4e83-81b7-e704fce6a3ff" /># 🌍 Hanoi Air Quality Data Warehouse & Forecasting
 
 ## 📝 Giới thiệu
 Dự án xây dựng một hệ thống hoàn chỉnh từ khâu thu thập dữ liệu thời gian thực, xử lý ETL đến ứng dụng phân tích và dự đoán chất lượng không khí tại thành phố Hà Nội, Việt Nam. Hệ thống hỗ trợ giám sát tức thời và dự báo xu hướng ô nhiễm để cảnh báo sớm.
@@ -20,7 +20,8 @@ Dự án xây dựng một hệ thống hoàn chỉnh từ khâu thu thập dữ
 
 | Biểu đồ Dự báo (Model Forecast) | Giao diện Dashboard (Real-time) |
 |:---:|:---:|
-| ![Model](link_anh_model_cua_ban) | ![Dashboard](link_anh_dashboard_cua_ban) |
+| ![Model](<img width="804" height="600" alt="image" src="https://github.com/user-attachments/assets/b2bba782-ee75-4681-a3a7-b9932339ee7c" />
+) 
 
 ## 🛠 Cách triển khai (How to run)
 1. Cài đặt các thư viện cần thiết:
