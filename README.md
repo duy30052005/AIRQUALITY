@@ -24,4 +24,6 @@ Dự án xây dựng một hệ thống hoàn chỉnh từ khâu thu thập dữ
 ## 🛠 Cách triển khai (How to run)
 1. Cài đặt các thư viện cần thiết:
    ```bash
-   pip install -r requirements.txt
+git clone [https://github.com/duy30052005/AIRQUALITY.git](https://github.com/duy30052005/AIRQUALITY.git)
+cd AIRQUALITY
+pip install -r requirements.txt
