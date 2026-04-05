@@ -16,8 +16,6 @@ Dự án xây dựng một hệ thống hoàn chỉnh từ khâu thu thập dữ
 
 ## 📊 Hình ảnh hệ thống và Kết quả
 
-*(Duy nhớ Upload 1-2 tấm ảnh giao diện Dashboard hoặc biểu đồ dự báo của mô hình lên GitHub, sau đó chèn link ảnh vào đây để nhà tuyển dụng xem nhé)*
-
 | Biểu đồ Dự báo (Model Forecast) |
 |:---:|
 | ![Model](<img width="804" height="600" alt="image" src="https://github.com/user-attachments/assets/b2bba782-ee75-4681-a3a7-b9932339ee7c" />
