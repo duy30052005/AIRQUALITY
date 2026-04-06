@@ -13,7 +13,7 @@ Dự án là một hệ thống AI End-to-End thực hiện việc giám sát, p
 ## 🗄️ Kiến trúc Dữ liệu (Data Architecture)
 Hệ thống lưu trữ được thiết kế theo mô hình **Galaxy Schema (Lược đồ chòm sao)**, cho phép tích hợp đa nguồn dữ liệu và tối ưu hóa tốc độ truy vấn phân tích đa chiều (OLAP). 
 
-*(Kéo thả file ảnh cấu trúc DB của bạn vào dòng bên dưới để thay thế chữ này)*
+
 ![Galaxy Schema Diagram](<img width="895" height="522" alt="image" src="https://github.com/user-attachments/assets/b78f11a2-1da0-4a6a-b586-e97daae3dd9a" />
 
 )
