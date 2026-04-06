@@ -5,7 +5,7 @@ Dự án là một hệ thống AI End-to-End thực hiện việc giám sát, p
 
 ## 🚀 Công nghệ và Kỹ thuật cốt lõi
 * **Data Engineering (ETL Pipeline):** Python (Pandas, SQLAlchemy), Flask, APScheduler.
-* **Database:** PostgreSQL (Supabase) tối ưu hóa Connection Pool cho môi trường Cloud.
+* **Database:** PostgreSQL (Render) tối ưu hóa Connection Pool cho môi trường Cloud.
 * **Machine Learning / AI:** **Gradient Boosting Regressor (GBR)** dự báo nồng độ khí dựa trên chuỗi thời gian và sự tương tác phức tạp của thời tiết.
 * **Feature Engineering:** Kỹ thuật trễ (Lags), Trung bình trượt (Rolling Mean), và Mã hóa chu kỳ thời gian (Cyclical Encoding với Sin/Cos).
 * **Visualization:** Matplotlib nâng cao (hiển thị dữ liệu thực tế, dữ liệu nội suy và dự báo tương lai).
