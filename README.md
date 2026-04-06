@@ -1,27 +1,49 @@
-# 🌍 Hanoi Air Quality Data Warehouse & Forecasting
+# 🌍 Hanoi Air Quality: Real-time Data Warehouse & AI Forecasting
 
 ## 📝 Giới thiệu
-Dự án xây dựng một hệ thống hoàn chỉnh từ khâu thu thập dữ liệu thời gian thực, xử lý ETL đến ứng dụng phân tích và dự đoán chất lượng không khí tại thành phố Hà Nội, Việt Nam. Hệ thống hỗ trợ giám sát tức thời và dự báo xu hướng ô nhiễm để cảnh báo sớm.
+Dự án là một hệ thống AI End-to-End thực hiện việc giám sát, phân tích và dự báo chất lượng không khí tại Hà Nội. Hệ thống tự động thu thập dữ liệu thời gian thực (Real-time ETL), lưu trữ tối ưu trên Cloud Data Warehouse (Supabase) và áp dụng các kỹ thuật Học máy (Machine Learning) tiên tiến để dự báo mức độ ô nhiễm trong tương lai, hỗ trợ đưa ra cảnh báo sớm.
 
-## 🚀 Công nghệ và Công cụ
-* **Data Engineering (ETL):** Python (Pandas), tự động hóa thu thập dữ liệu.
-* **Machine Learning:** Mô hình học máy dự báo chuỗi thời gian (Gradient Boosting Regressor / Prophet).
-* **Visualization:** Giao diện Dashboard trực quan hóa dữ liệu thời gian thực.
+## 🚀 Công nghệ và Kỹ thuật cốt lõi
+* **Data Engineering (ETL Pipeline):** Python (Pandas, SQLAlchemy), Flask, APScheduler.
+* **Database:** PostgreSQL (Supabase) tối ưu hóa Connection Pool cho môi trường Cloud.
+* **Machine Learning / AI:** * *Gradient Boosting Regressor (GBR):* Dự báo nồng độ khí dựa trên sự tương tác phức tạp của thời tiết.
+  * *Facebook Prophet:* Phân tích chuỗi thời gian (Time-series) và dự báo xu hướng với Logistic Growth.
+* **Feature Engineering:** Kỹ thuật trễ (Lags), Trung bình trượt (Rolling Mean), và Mã hóa chu kỳ thời gian (Cyclical Encoding với Sin/Cos).
+* **Visualization:** Matplotlib nâng cao (hiển thị dữ liệu thực tế, dữ liệu nội suy và dự báo tương lai).
 
-## 📂 Cấu trúc Repository hiện tại
-* `AirQualityRealTime.py`: Script triển khai trên server để tự động kết nối, thu thập và cập nhật dữ liệu chất lượng không khí theo thời gian thực (Real-time Data Ingestion).
-* `ETL_real_time.ipynb`: Notebook thực hiện quy trình ETL (Trích xuất - Biến đổi - Nạp) và tích hợp giao diện Dashboard giám sát.
-* `GBRmodel.ipynb`: Notebook chứa mã nguồn huấn luyện mô hình Học máy để dự báo xu hướng nồng độ các chất ô nhiễm.
-* `requirements.txt`: Danh sách các thư viện Python cần thiết (dependencies) để triển khai dự án.
+## 💡 Các tính năng nổi bật
 
-## 📊 Hình ảnh hệ thống và Kết quả
+### 1. Luồng dữ liệu tự động (Real-Time ETL Pipeline)
+* **Trích xuất (Extract):** Tự động gọi API từ **OpenAQ** (Dữ liệu không khí) và **Open-Meteo** (Dữ liệu thời tiết tương lai) mỗi 15 - 60 phút.
+* **Biến đổi (Transform):** Xử lý múi giờ (Asia/Bangkok), chuẩn hóa kiểu dữ liệu và ánh xạ thông minh các Dimension keys.
+* **Nạp (Load):** Cơ chế "Smart Check" và `DELETE -> INSERT` giúp ngăn chặn tuyệt đối tình trạng lặp dữ liệu (Duplication) khi chạy trên server liên tục.
 
-| Biểu đồ Dự báo (Model Forecast) |
-|:---:|
-| ![Model](<img width="804" height="600" alt="image" src="https://github.com/user-attachments/assets/b2bba782-ee75-4681-a3a7-b9932339ee7c" />
-) 
+### 2. Kỹ thuật Feature Engineering chuyên sâu
+Mô hình Học máy không chỉ sử dụng dữ liệu thô mà được huấn luyện trên tập đặc trưng (Features) đã qua xử lý phức tạp:
+* Tính toán chỉ số đọng khí (Stagnation Index) và điểm sương (Dew Point).
+* Áp dụng mã hóa lượng giác (Sine/Cosine transformation) cho Giờ và Ngày trong tuần để mô hình hiểu được tính chu kỳ tuần hoàn của thời gian.
 
-## 🛠 Cách triển khai (How to run)
+### 3. Hệ thống Dự báo Kép (Dual Forecasting System)
+* **Backend Forecast (GBR):** Huấn luyện mô hình Gradient Boosting với hàm mất mát Huber (chống nhiễu), kết hợp dữ liệu thời tiết tương lai để dự báo nồng độ PM2.5, PM10, CO, NO2, SO2, O3 và lưu trực tiếp vào Database.
+* **Frontend Forecast (Prophet):** Xử lý mượt mà các khoảng trống dữ liệu bằng nội suy, áp dụng hàm Log Transform và giới hạn trần/sàn (Cap/Floor) để dự báo xu hướng biến động dài hạn trên Dashboard.
+
+## 📂 Cấu trúc Repository
+* `AirQualityRealTime.py`: Khối Web Server (Flask) & Scheduler quản lý toàn bộ luồng ETL tự động trên Production (Render).
+* Các file `.ipynb`: Chứa mã nguồn huấn luyện mô hình Gradient Boosting Regressor, Facebook Prophet và giao diện Dashboard cảnh báo.
+* `requirements.txt`: Danh sách các thư viện môi trường cần thiết.
+
+## 📊 Giao diện & Kết quả
+
+*(Kéo thả hình ảnh Dashboard trực quan và Biểu đồ dự báo thực tế của bạn vào đây)*
+
+| Dashboard Dự báo (Prophet & Matplotlib) | Cấu trúc ETL Logic |
+|:---:|:---:|
+| ![Dashboard](link_anh_dashboard) | ![ETL](link_anh_minh_hoa_etl) |
+
+---
+
+## 🛠 Hướng dẫn Triển khai (Local Setup)
+
 ### Bước 1: Cài đặt môi trường
 Clone repository và cài đặt các thư viện phụ thuộc:
 ```bash
@@ -30,28 +52,24 @@ cd AIRQUALITY
 pip install -r requirements.txt
 ```
 
-### Bước 2: Cấu hình biến môi trường (Environment Variables)
-Hệ thống yêu cầu thông tin kết nối Database và API Key để hoạt động. Vui lòng thiết lập các biến môi trường sau (có thể dùng file `.env`):
-* `DB_PASSWORD`: Mật khẩu kết nối database PostgreSQL (Supabase).
-* `OPENAQ_API_KEY`: API Key lấy từ hệ thống OpenAQ.
-* `PORT`: Cổng khởi chạy server (mặc định là 5000).
+### Bước 2: Cấu hình biến môi trường
+Tạo file `.env` tại thư mục gốc và khai báo các thông tin bảo mật (Hệ thống sẽ tự nhận diện qua `os.getenv`):
+```env
+DB_PASSWORD=mật_khẩu_supabase_của_bạn
+OPENAQ_API_KEY=api_key_của_bạn
+PORT=5000
+```
+*Lưu ý: Không commit file `.env` lên Github.*
 
-### Bước 3: Khởi chạy hệ thống Server & ETL Pipeline
-Chạy file script chính để khởi động Flask server và các tiến trình thu thập dữ liệu ngầm (Background Jobs):
+### Bước 3: Khởi chạy ETL Server
+Khởi động hệ thống thu thập dữ liệu ngầm và Web Server:
 ```bash
 python AirQualityRealTime.py
 ```
-*Hệ thống sẽ tự động thực thi luồng lấy dữ liệu không khí và thời tiết một lần ngay khi khởi động, sau đó đưa vào lịch trình chạy tự động.*
+*Hệ thống sẽ ghi log chi tiết quá trình kiểm tra API và nạp dữ liệu vào Database.*
 
-### Bước 4: Truy cập Giao diện
-Sau khi server báo khởi động thành công, mở trình duyệt web và truy cập vào địa chỉ:
-👉 **http://localhost:5000**
+### Bước 4: Chạy Mô hình và Xem Dashboard
+Mở các file `.ipynb` (phần Model và Dashboard) bằng Jupyter Notebook. Chạy toàn bộ các Cell để hệ thống tự động kéo dữ liệu mới nhất từ Cloud DB, thực hiện dự báo và render biểu đồ trực quan.
 
-Để xem các biểu đồ dự báo chi tiết và quá trình huấn luyện mô hình, vui lòng mở các file `.ipynb` đi kèm thông qua Jupyter Notebook hoặc Google Colab.
-
-## 👥 Nhóm phát triển
-Dự án được thực hiện bởi nhóm sinh viên chuyên ngành Trí tuệ nhân tạo, Trường Đại học Công nghệ Thông tin và Truyền thông Việt - Hàn (VKU):
-* **Huỳnh Bá Duy** (23AI008)
-* **Đỗ Phú Minh Đức** (23AI011)
-* **Võ Nhật Cường** (23AI005)
-* **Trương Tấn Vũ** (23AI056)
+## 👥 Tác giả
+* **Huỳnh Bá Duy** - AI Engineer Intern | Trường Đại học Công nghệ Thông tin và Truyền thông Việt - Hàn (VKU).
