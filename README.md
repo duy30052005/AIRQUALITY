@@ -36,8 +36,6 @@ Hệ thống yêu cầu thông tin kết nối Database và API Key để hoạt
 * `OPENAQ_API_KEY`: API Key lấy từ hệ thống OpenAQ.
 * `PORT`: Cổng khởi chạy server (mặc định là 5000).
 
-*Lưu ý bảo mật: Tuyệt đối không commit file `.env` chứa mật khẩu thực tế lên GitHub.*
-
 ### Bước 3: Khởi chạy hệ thống Server & ETL Pipeline
 Chạy file script chính để khởi động Flask server và các tiến trình thu thập dữ liệu ngầm (Background Jobs):
 ```bash
